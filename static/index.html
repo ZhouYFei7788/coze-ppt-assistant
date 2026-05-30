@@ -142,40 +142,73 @@
             <section class="panel card control-panel">
                 <div class="panel-header">
                     <i class="fa-solid fa-microphone-lines header-icon"></i>
-                    <h2>语音答辩录制</h2>
+                    <h2>语音答辩</h2>
                 </div>
 
-                <div class="recorder-container">
-                    <!-- Status Badge -->
-                    <div class="status-badge" id="recorder-status">
-                        <span class="badge-dot"></span>
-                        <span class="badge-text">准备就绪</span>
-                    </div>
-
-                    <!-- Waveform Visualizer -->
-                    <div class="visualizer-wrapper">
-                        <canvas id="waveform-canvas" width="400" height="120"></canvas>
-                        <div class="timer" id="recording-timer">00:00</div>
-                    </div>
-
-                    <!-- Recording Controls -->
-                    <div class="recorder-controls">
-                        <button type="button" id="btn-start-record" class="btn btn-record" onclick="startRecording()">
-                            <i class="fa-solid fa-microphone"></i> 开始录音 (答辩)
+                <!-- Audio Source Toggle -->
+                <div class="form-group">
+                    <label>
+                        <i class="fa-solid fa-headphones"></i> 音频来源 <span class="required">*</span>
+                    </label>
+                    <div class="tab-container">
+                        <button type="button" id="tab-record" class="tab-btn active" onclick="switchAudioSource('record')">
+                            <i class="fa-solid fa-microphone"></i> 实时录音
                         </button>
-                        <button type="button" id="btn-stop-record" class="btn btn-stop d-none" onclick="stopRecording()">
-                            <i class="fa-solid fa-stop"></i> 结束录制
+                        <button type="button" id="tab-upload-audio" class="tab-btn" onclick="switchAudioSource('upload')">
+                            <i class="fa-solid fa-file-audio"></i> 上传本地音频
                         </button>
                     </div>
+                </div>
 
-                    <!-- Audio Playback Preview -->
-                    <div class="audio-preview-card d-none" id="audio-preview-container">
-                        <div class="preview-header">
-                            <span class="preview-title"><i class="fa-solid fa-circle-check"></i> 录音已生成</span>
-                            <button type="button" class="btn-text-danger" onclick="resetRecording()">重新录制</button>
+                <!-- Tab 1: Live Recording (default active) -->
+                <div id="audio-record-container" class="source-container active">
+                    <div class="recorder-container">
+                        <!-- Status Badge -->
+                        <div class="status-badge" id="recorder-status">
+                            <span class="badge-dot"></span>
+                            <span class="badge-text">准备就绪</span>
                         </div>
-                        <audio id="audio-playback" controls></audio>
-                        <div class="audio-meta" id="audio-meta-text">文件大小: 0 KB</div>
+
+                        <!-- Waveform Visualizer -->
+                        <div class="visualizer-wrapper">
+                            <canvas id="waveform-canvas" width="400" height="120"></canvas>
+                            <div class="timer" id="recording-timer">00:00</div>
+                        </div>
+
+                        <!-- Recording Controls -->
+                        <div class="recorder-controls">
+                            <button type="button" id="btn-start-record" class="btn btn-record" onclick="startRecording()">
+                                <i class="fa-solid fa-microphone"></i> 开始录音 (答辩)
+                            </button>
+                            <button type="button" id="btn-stop-record" class="btn btn-stop d-none" onclick="stopRecording()">
+                                <i class="fa-solid fa-stop"></i> 结束录制
+                            </button>
+                        </div>
+
+                        <!-- Audio Playback Preview -->
+                        <div class="audio-preview-card d-none" id="audio-preview-container">
+                            <div class="preview-header">
+                                <span class="preview-title"><i class="fa-solid fa-circle-check"></i> 录音已生成</span>
+                                <button type="button" class="btn-text-danger" onclick="resetRecording()">重新录制</button>
+                            </div>
+                            <audio id="audio-playback" controls></audio>
+                            <div class="audio-meta" id="audio-meta-text">文件大小: 0 KB</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Upload Local Audio File -->
+                <div id="audio-upload-container" class="source-container">
+                    <div class="upload-zone" id="audio-dropzone">
+                        <input type="file" id="input-audio-file" name="audio_file" accept=".mp3,.wav,.ogg,.m4a,.webm">
+                        <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                        <div class="upload-text">拖拽音频文件到此处，或<span>点击浏览</span></div>
+                        <div class="upload-hint">支持 .mp3 / .wav / .ogg / .m4a / .webm</div>
+                        <div class="selected-file-info" id="audio-file-info">
+                            <i class="fa-solid fa-file-audio text-primary"></i>
+                            <span class="filename" id="audio-filename">文件名.mp3</span>
+                            <button type="button" class="remove-file-btn" onclick="clearAudioFile()"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
                     </div>
                 </div>
 

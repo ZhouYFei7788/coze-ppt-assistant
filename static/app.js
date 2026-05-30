@@ -1,8 +1,10 @@
 // State Variables
 let pptSourceMode = 'url'; // 'url' or 'file'
+let audioSourceMode = 'record'; // 'record' or 'upload'
 let mediaRecorder = null;
 let audioChunks = [];
 let audioBlob = null;
+let uploadedAudioFile = null;
 let recordingTimerInterval = null;
 let secondsRecorded = 0;
 let audioContext = null;
@@ -47,6 +49,16 @@ const resultAudioUrl = document.getElementById('result-audio-url');
 const resultAudioPath = document.getElementById('result-audio-path');
 const resultAudioSize = document.getElementById('result-audio-size');
 const resultJsonBlock = document.getElementById('result-json-block');
+
+// Audio upload DOM elements
+const tabRecord = document.getElementById('tab-record');
+const tabUploadAudio = document.getElementById('tab-upload-audio');
+const audioRecordContainer = document.getElementById('audio-record-container');
+const audioUploadContainer = document.getElementById('audio-upload-container');
+const audioDropzone = document.getElementById('audio-dropzone');
+const inputAudioFile = document.getElementById('input-audio-file');
+const audioFileInfo = document.getElementById('audio-file-info');
+const audioFilenameEl = document.getElementById('audio-filename');
 
 // Set canvas initial display state
 drawIdleWaveform();
@@ -122,6 +134,69 @@ function clearPPTFile() {
     if (pptSourceMode === 'file') {
         inputPptFile.setAttribute('required', 'true');
     }
+}
+
+// ─── Audio Source Toggle ───────────────────────────
+function switchAudioSource(mode) {
+    audioSourceMode = mode;
+    if (mode === 'record') {
+        tabRecord.classList.add('active');
+        tabUploadAudio.classList.remove('active');
+        audioRecordContainer.classList.add('active');
+        audioUploadContainer.classList.remove('active');
+    } else {
+        tabRecord.classList.remove('active');
+        tabUploadAudio.classList.add('active');
+        audioRecordContainer.classList.remove('active');
+        audioUploadContainer.classList.add('active');
+    }
+}
+
+// Audio file upload: drag-and-drop
+['dragenter', 'dragover'].forEach(eventName => {
+    audioDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        audioDropzone.classList.add('dragover');
+    }, false);
+});
+
+['dragleave', 'drop'].forEach(eventName => {
+    audioDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        audioDropzone.classList.remove('dragover');
+    }, false);
+});
+
+audioDropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files.length) {
+        inputAudioFile.files = files;
+        handleAudioFileSelection();
+    }
+});
+
+inputAudioFile.addEventListener('change', handleAudioFileSelection);
+
+function handleAudioFileSelection() {
+    if (inputAudioFile.files.length) {
+        const file = inputAudioFile.files[0];
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (!['mp3', 'wav', 'ogg', 'm4a', 'webm'].includes(ext)) {
+            alert('请上传有效的音频文件 (.mp3, .wav, .ogg, .m4a, .webm)');
+            clearAudioFile();
+            return;
+        }
+        uploadedAudioFile = file;
+        audioFilenameEl.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        audioFileInfo.classList.add('active');
+    }
+}
+
+function clearAudioFile() {
+    inputAudioFile.value = '';
+    uploadedAudioFile = null;
+    audioFileInfo.classList.remove('active');
 }
 
 // Audio Visualizer - Idle flat line
@@ -319,12 +394,14 @@ async function submitDefenseData() {
     setStepState(stepUploadPPT, 'completed');
     setStepState(stepUploadAudio, 'active');
     
-    if (audioBlob) {
+    if (audioSourceMode === 'record' && audioBlob) {
         formData.append('audio_file', audioBlob, 'recording.webm');
         progressBarFill.style.width = '60%';
+    } else if (audioSourceMode === 'upload' && uploadedAudioFile) {
+        formData.append('audio_file', uploadedAudioFile);
+        progressBarFill.style.width = '60%';
     } else {
-        // audio is optional but supported
-        console.log("No audio recording provided for submission.");
+        console.log("No audio provided for submission.");
     }
     
     setStepState(stepUploadAudio, 'completed');
