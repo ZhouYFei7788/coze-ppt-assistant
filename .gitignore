@@ -1,0 +1,75 @@
+# .gitignore
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.so
+
+# 虚拟环境
+venv/
+env/
+.venv/
+
+# 本地上传文件（运行时生成，不上传）
+uploads/
+
+# 敏感信息（通过平台环境变量注入）
+.env
+
+# 所有本地 site-packages（镜像内重新安装，不提交）
+alibabacloud_oss_v2/
+alibabacloud_oss_v2-*.dist-info/
+annotated_doc/
+annotated_doc-*.dist-info/
+annotated_types/
+annotated_types-*.dist-info/
+anyio/
+anyio-*.dist-info/
+bin/
+certifi/
+certifi-*.dist-info/
+charset_normalizer/
+charset_normalizer-*.dist-info/
+click/
+click-*.dist-info/
+crcmod/
+crcmod_plus-*.dist-info/
+Crypto/
+exceptiongroup/
+exceptiongroup-*.dist-info/
+fastapi/
+fastapi-*.dist-info/
+h11/
+h11-*.dist-info/
+idna/
+idna-*.dist-info/
+multipart/
+pycryptodome-*.dist-info/
+pydantic/
+pydantic-*.dist-info/
+pydantic_core/
+pydantic_core-*.dist-info/
+python_multipart/
+python_multipart-*.dist-info/
+requests/
+requests-*.dist-info/
+starlette/
+starlette-*.dist-info/
+typing_extensions-*.dist-info/
+typing_inspection/
+typing_inspection-*.dist-info/
+urllib3/
+urllib3-*.dist-info/
+uvicorn/
+uvicorn-*.dist-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coze PPT AI 智能答辩系统</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="ambient-glow" aria-hidden="true"></div>
+    <div class="ambient-glow-2" aria-hidden="true"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                <span class="logo-text">Coze PPT <span class="accent-text">Defense AI</span></span>
+            </div>
+            <div class="subtitle">智能答辩辅助与评估系统</div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="dashboard-grid">
+            <!-- Left Panel: Information Settings -->
+            <section class="panel card form-panel">
+                <div class="panel-header">
+                    <i class="fa-solid fa-sliders header-icon"></i>
+                    <h2>答辩信息配置</h2>
+                </div>
+                
+                <form id="defense-form" class="defense-form">
+                    <!-- Email Input -->
+                    <div class="form-group">
+                        <label for="input-email">
+                            <i class="fa-solid fa-envelope"></i> 电子邮箱 <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="input-email" 
+                            name="email" 
+                            placeholder="例如: 2053352781@qq.com" 
+                            value="2053352781@qq.com" 
+                            required
+                        >
+                        <span class="input-help">用于接收评估报告或通知</span>
+                    </div>
+
+                    <!-- CC Email Input -->
+                    <div class="form-group">
+                        <label for="input-cc-email">
+                            <i class="fa-solid fa-envelope-open-text"></i> 抄送邮箱
+                        </label>
+                        <input 
+                            type="text" 
+                            id="input-cc-email" 
+                            name="cc_email" 
+                            placeholder="多个邮箱用英文逗号分隔，如: a@qq.com,b@qq.com" 
+                            value=""
+                        >
+                        <span class="input-help">选填，可抄送至多个邮箱地址</span>
+                    </div>
+
+                    <!-- Group Name Input -->
+                    <div class="form-group">
+                        <label for="input-group">
+                            <i class="fa-solid fa-users"></i> 小组名称 <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="input-group" 
+                            name="group_name" 
+                            placeholder="例如: 111123组" 
+                            value="111123组" 
+                            required
+                        >
+                    </div>
+
+                    <!-- PPT Config Toggle -->
+                    <div class="form-group">
+                        <label>
+                            <i class="fa-solid fa-file-powerpoint"></i> PPT 文件源 <span class="required">*</span>
+                        </label>
+                        <div class="tab-container">
+                            <button type="button" id="tab-url" class="tab-btn active" onclick="switchPPTSource('url')">
+                                <i class="fa-solid fa-link"></i> PPT 链接
+                            </button>
+                            <button type="button" id="tab-file" class="tab-btn" onclick="switchPPTSource('file')">
+                                <i class="fa-solid fa-file-arrow-up"></i> 上传本地文件
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PPT URL Input (Active by default) -->
+                    <div id="ppt-url-container" class="form-group source-container active">
+                        <label for="input-ppt-url">PPT 在线链接 (需公网可访问)</label>
+                        <input 
+                            type="url" 
+                            id="input-ppt-url" 
+                            name="ppt_url" 
+                            placeholder="https://example.com/defense.pptx"
+                            value="https://yulindi.oss-cn-chengdu.aliyuncs.com/Dify%E6%96%B0%E9%97%BB%E6%9C%BA%E5%99%A8%E4%BA%BA_%E7%AD%94%E8%BE%A9PPT_%E5%89%AF%E6%9C%AC.pptx"
+                        >
+                        <span class="input-help">Coze工作流将直接从该链接下载并分析PPT</span>
+                    </div>
+
+                    <!-- PPT File Upload (Hidden by default) -->
+                    <div id="ppt-file-container" class="form-group source-container">
+                        <label>选择本地 PPT 文件</label>
+                        <div class="upload-zone" id="ppt-dropzone">
+                            <input type="file" id="input-ppt-file" name="ppt_file" accept=".pptx,.ppt">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <div class="upload-text">拖拽文件到此处，或<span>点击浏览</span></div>
+                            <div class="upload-hint">支持 .pptx 和 .ppt 格式</div>
+                            <div class="selected-file-info" id="ppt-file-info">
+                                <i class="fa-solid fa-file-powerpoint text-danger"></i>
+                                <span class="filename" id="ppt-filename">文件名.pptx</span>
+                                <button type="button" class="remove-file-btn" onclick="clearPPTFile()"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                        <div class="upload-warning-card">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <div>本地文件将自动上传并在云端转换为临时链接，以便外部 Coze API 能够进行读取。</div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Right Panel: Audio Recording & Control Center -->
+            <section class="panel card control-panel">
+                <div class="panel-header">
+                    <i class="fa-solid fa-microphone-lines header-icon"></i>
+                    <h2>语音答辩录制</h2>
+                </div>
+
+                <div class="recorder-container">
+                    <!-- Status Badge -->
+                    <div class="status-badge" id="recorder-status">
+                        <span class="badge-dot"></span>
+                        <span class="badge-text">准备就绪</span>
+                    </div>
+
+                    <!-- Waveform Visualizer -->
+                    <div class="visualizer-wrapper">
+                        <canvas id="waveform-canvas" width="400" height="120"></canvas>
+                        <div class="timer" id="recording-timer">00:00</div>
+                    </div>
+
+                    <!-- Recording Controls -->
+                    <div class="recorder-controls">
+                        <button type="button" id="btn-start-record" class="btn btn-record" onclick="startRecording()">
+                            <i class="fa-solid fa-microphone"></i> 开始录音 (答辩)
+                        </button>
+                        <button type="button" id="btn-stop-record" class="btn btn-stop d-none" onclick="stopRecording()">
+                            <i class="fa-solid fa-stop"></i> 结束录制
+                        </button>
+                    </div>
+
+                    <!-- Audio Playback Preview -->
+                    <div class="audio-preview-card d-none" id="audio-preview-container">
+                        <div class="preview-header">
+                            <span class="preview-title"><i class="fa-solid fa-circle-check"></i> 录音已生成</span>
+                            <button type="button" class="btn-text-danger" onclick="resetRecording()">重新录制</button>
+                        </div>
+                        <audio id="audio-playback" controls></audio>
+                        <div class="audio-meta" id="audio-meta-text">文件大小: 0 KB</div>
+                    </div>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="submit-section">
+                    <button type="button" id="btn-submit-all" class="btn btn-submit" onclick="submitDefenseData()">
+                        <i class="fa-solid fa-paper-plane"></i> 提交全部数据并启动评估
+                    </button>
+                    <span class="submit-note">将向 Coze 发送请求并上传您的答辩录音</span>
+                </div>
+            </section>
+        </main>
+
+        <!-- Stepper / Loading Screen Overlay -->
+        <div class="overlay d-none" id="progress-overlay">
+            <div class="progress-card card">
+                <h3>正在处理您的答辩请求...</h3>
+                <p class="progress-sub">请不要关闭页面，这可能需要几十秒时间</p>
+                
+                <div class="stepper">
+                    <div class="step" id="step-upload-ppt">
+                        <div class="step-icon"><i class="fa-solid fa-spinner fa-spin"></i></div>
+                        <div class="step-label">准备并上传 PPT 资源</div>
+                    </div>
+                    <div class="step" id="step-upload-audio">
+                        <div class="step-icon"><i class="fa-solid fa-circle-notch"></i></div>
+                        <div class="step-label">上传答辩语音录音</div>
+                    </div>
+                    <div class="step" id="step-call-coze">
+                        <div class="step-icon"><i class="fa-solid fa-circle-notch"></i></div>
+                        <div class="step-label">触发 Coze AI 评估工作流</div>
+                    </div>
+                </div>
+
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar-fill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section (Modals or Expandable Panel) -->
+        <section class="card result-card d-none" id="result-container">
+            <div class="result-header">
+                <h2><i class="fa-solid fa-square-poll-vertical"></i> Coze API 评估结果</h2>
+                <div class="result-actions">
+                    <span class="status-indicator success" id="result-status-badge">成功 (200)</span>
+                    <button type="button" class="btn-close" onclick="closeResult()"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            
+            <div class="result-grid">
+                <!-- Metadata -->
+                <div class="meta-column">
+                    <div class="meta-item">
+                        <span class="meta-label">PPT 使用链接:</span>
+                        <a href="#" id="result-ppt-url" target="_blank" class="meta-val link-truncate">-</a>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">PPT 本地保存:</span>
+                        <span id="result-ppt-path" class="meta-val">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">语音使用链接:</span>
+                        <a href="#" id="result-audio-url" target="_blank" class="meta-val link-truncate">-</a>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">语音本地保存:</span>
+                        <span id="result-audio-path" class="meta-val">-</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">录音大小:</span>
+                        <span id="result-audio-size" class="meta-val">-</span>
+                    </div>
+                </div>
+
+                <!-- Raw JSON / Response display -->
+                <div class="response-column">
+                    <span class="section-title">Coze API 返回数据:</span>
+                    <pre><code id="result-json-block">{}</code></pre>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer-bottom">
+        <p>&copy; 2026 Coze PPT AI 智能答辩系统. All rights reserved.</p>
+    </footer>
+
+    <!-- App JS -->
+    <script src="app.js"></script>
+</body>
+</html>

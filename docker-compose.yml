@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  ppt-assistant:
+    build: .
+    container_name: ppt-assistant
+    restart: always
+    ports:
+      - "9000:9000"
+    environment:
+      # OSS 配置（从宿主机环境变量注入，不硬编码）
+      - ALIBABA_CLOUD_ACCESS_KEY_ID=${ALIBABA_CLOUD_ACCESS_KEY_ID}
+      - ALIBABA_CLOUD_ACCESS_KEY_SECRET=${ALIBABA_CLOUD_ACCESS_KEY_SECRET}
+      - OSS_BUCKET=${OSS_BUCKET:-yulindi}
+      - OSS_REGION=${OSS_REGION:-cn-chengdu}
+      - OSS_ENDPOINT=${OSS_ENDPOINT:-oss-cn-chengdu.aliyuncs.com}
+      - PORT=9000
+    volumes:
+      # 持久化上传文件
+      - ./uploads:/code/uploads
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
