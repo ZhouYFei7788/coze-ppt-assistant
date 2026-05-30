@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: coze-ppt-assistant
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon
+    envVars:
+      - key: ALIBABA_CLOUD_ACCESS_KEY_ID
+        sync: false
+      - key: ALIBABA_CLOUD_ACCESS_KEY_SECRET
+        sync: false
+      - key: OSS_BUCKET
+        value: yulindi
+      - key: OSS_REGION
+        value: cn-chengdu
+      - key: OSS_ENDPOINT
+        value: oss-cn-chengdu.aliyuncs.com
+      - key: PORT
+        value: "9000"
